@@ -1,0 +1,14 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\backend",
+    "\\backend\\Redanto.API\\Exceptions",
+    "\\backend\\Redanto.API\\Extensions",
+    "\\backend\\Redanto.API\\Middleware",
+    "\\backend\\Redanto.API\\Models",
+    "\\backend\\Redanto.API\\Options",
+    "\\backend\\Redanto.API\\Repositories",
+    "\\backend\\Redanto.API\\Services"
+  ],
+  "PreviewInSolutionExplorer": false
+}

@@ -184,7 +184,7 @@ import { LoadingSpinnerComponent } from '../../../shared/components/loading-spin
 })
 export class BookDetailComponent implements OnInit {
   private books = inject(BookService);
-  private saved = inject(SavedBooksService);
+  private savedBooks = inject(SavedBooksService);
   protected auth = inject(AuthService);
   private router = inject(Router);
 
@@ -235,12 +235,12 @@ export class BookDetailComponent implements OnInit {
 
     this.saving.set(true);
     if (this.saved$()) {
-      this.saved.remove(b.id).subscribe({
+      this.savedBooks.remove(b.id).subscribe({
         next: () => { this.saved$.set(false); this.saving.set(false); },
         error: () => this.saving.set(false)
       });
     } else {
-      this.saved.save(b).subscribe({
+      this.savedBooks.save(b).subscribe({
         next: () => { this.saved$.set(true); this.saving.set(false); },
         error: () => this.saving.set(false)
       });
@@ -260,7 +260,7 @@ export class BookDetailComponent implements OnInit {
     if (!this.auth.isLoggedIn) return;
     const b = this.book();
     if (!b) return;
-    this.saved.list().subscribe(list => {
+    this.savedBooks.list().subscribe(list => {
       this.saved$.set(list.some(s => s.gutendexBookId === b.id));
     });
   }

@@ -13,6 +13,14 @@ public record LoginRequest(
     [Required] string Password
 );
 
-public record UserDto(int Id, string Username, string Email, DateTime CreatedAt);
+public record UserDto(
+    int Id, 
+    string Username, 
+    string Email, 
+    DateTime CreatedAt
+    );
 
-public record AuthResponse(UserDto User, string Token);
+public record AuthResponse(
+    UserDto User, 
+    string Token
+    );
