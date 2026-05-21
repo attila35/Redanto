@@ -51,19 +51,39 @@ import { LoadingSpinnerComponent } from '../../../shared/components/loading-spin
           }
         </div>
 
-        <div class="pagination">
-          <button class="btn btn-ghost"
+        <nav class="pagination" aria-label="Page navigation">
+          <button class="btn btn-ghost pag-arrow"
                   (click)="changePage(page() - 1)"
-                  [disabled]="!r.previous">
-            ← Previous
+                  [disabled]="!r.previous"
+                  aria-label="Previous page">
+            ←
           </button>
-          <span class="page-info">Page {{ page() }}</span>
-          <button class="btn btn-ghost"
+
+          @for (p of pageRange(r.count); track p) {
+            @if (p === 0) {
+              <span class="pag-ellipsis" aria-hidden="true">…</span>
+            } @else {
+              <button class="pag-num"
+                      [class.pag-num--active]="p === page()"
+                      (click)="changePage(p)"
+                      [attr.aria-current]="p === page() ? 'page' : null"
+                      [attr.aria-label]="'Page ' + p">
+                {{ p }}
+              </button>
+            }
+          }
+
+          <button class="btn btn-ghost pag-arrow"
                   (click)="changePage(page() + 1)"
-                  [disabled]="!r.next">
-            Next →
+                  [disabled]="!r.next"
+                  aria-label="Next page">
+            →
           </button>
-        </div>
+
+          <span class="pag-label">
+            Page {{ page() }} of {{ totalPages(r.count) }}
+          </span>
+        </nav>
       }
     </section>
   `,
@@ -137,12 +157,58 @@ import { LoadingSpinnerComponent } from '../../../shared/components/loading-spin
       display: flex;
       justify-content: center;
       align-items: center;
-      gap: var(--space-4);
+      gap: var(--space-2);
       margin: var(--space-8) 0;
+      flex-wrap: wrap;
     }
-    .page-info {
+    .pag-arrow {
+      padding: var(--space-2) var(--space-4);
+      font-size: 1.1rem;
+      min-width: 2.5rem;
+    }
+    .pag-num {
+      width: 2.2rem;
+      height: 2.2rem;
+      border-radius: 50%;
+      border: 1.5px solid transparent;
+      background: transparent;
       color: var(--color-text-muted);
-      font-weight: 500;
+      font-family: var(--font-serif);
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s, border-color 0.15s;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .pag-num:hover:not(.pag-num--active) {
+      background: var(--color-surface);
+      color: var(--color-text);
+      border-color: var(--color-border);
+    }
+    .pag-num--active {
+      background: var(--color-primary);
+      color: var(--color-white);
+      border-color: var(--color-primary);
+      font-weight: 600;
+      cursor: default;
+    }
+    .pag-ellipsis {
+      width: 2.2rem;
+      text-align: center;
+      color: var(--color-text-muted);
+      font-family: var(--font-serif);
+      letter-spacing: 0.05em;
+      user-select: none;
+    }
+    .pag-label {
+      width: 100%;
+      text-align: center;
+      font-family: var(--font-serif);
+      font-style: italic;
+      font-size: 0.88rem;
+      color: var(--color-text-muted);
+      margin-top: var(--space-1);
     }
 
     @media (max-width: 600px) {
@@ -166,6 +232,30 @@ export class BookListComponent {
 
   readonly headerLabel = () =>
     this.activeQuery() ? `Results for “${this.activeQuery()}”` : 'Popular books';
+
+  private readonly PAGE_SIZE = 32;
+
+  totalPages(count: number): number {
+    return Math.max(1, Math.ceil(count / this.PAGE_SIZE));
+  }
+
+  /** Returns page numbers with 0 as an ellipsis sentinel. */
+  pageRange(count: number): number[] {
+    const total = this.totalPages(count);
+    const cur = this.page();
+    if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
+
+    const pages: number[] = [];
+    const add = (n: number) => { if (!pages.includes(n)) pages.push(n); };
+
+    add(1);
+    if (cur > 3) pages.push(0); // left ellipsis
+    for (let p = Math.max(2, cur - 1); p <= Math.min(total - 1, cur + 1); p++) add(p);
+    if (cur < total - 2) pages.push(0); // right ellipsis
+    add(total);
+
+    return pages;
+  }
 
   constructor() {
     this.fetch();

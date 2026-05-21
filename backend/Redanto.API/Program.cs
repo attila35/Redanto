@@ -58,6 +58,18 @@ builder.Services.AddAuthorization();
 // HttpClient for Gutendex
 // -----------------------------------------------------------------
 builder.Services.AddHttpClient<IGutendexService, GutendexService>();
+// AllowAutoRedirect=false so we can manually follow the HTTPS→HTTP
+// redirect that Gutenberg issues (SocketsHttpHandler blocks protocol downgrades automatically).
+builder.Services.AddHttpClient("GutenbergContent", c =>
+{
+    c.DefaultRequestHeaders.Add("User-Agent", "Redanto/1.0 (+https://redanto.app)");
+    c.Timeout = TimeSpan.FromSeconds(30);
+}).ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler
+{
+    AllowAutoRedirect = false,
+    UseCookies = false,
+    PooledConnectionLifetime = TimeSpan.FromMinutes(5),
+});
 
 // -----------------------------------------------------------------
 // Repositories (DI)

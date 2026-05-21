@@ -6,4 +6,5 @@ public interface IGutendexService
 {
     Task<GutendexSearchResponse> SearchAsync(string? search, int page, CancellationToken ct = default);
     Task<GutendexBookDto?> GetBookAsync(int id, CancellationToken ct = default);
+    Task<string?> GetBookContentAsync(int id, CancellationToken ct = default);
 }

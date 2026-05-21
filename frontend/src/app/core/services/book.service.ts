@@ -20,4 +20,8 @@ export class BookService {
   get(gutendexId: number): Observable<GutendexBook> {
     return this.http.get<GutendexBook>(`${this.base}/${gutendexId}`);
   }
+
+  getContent(gutendexId: number): Observable<string> {
+    return this.http.get(`${this.base}/${gutendexId}/content`, { responseType: 'text' });
+  }
 }

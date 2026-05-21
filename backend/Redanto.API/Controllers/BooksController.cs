@@ -31,4 +31,14 @@ public class BooksController : ControllerBase
         var book = await _gutendex.GetBookAsync(gutendexId, ct);
         return book is null ? NotFound() : Ok(book);
     }
+
+    [HttpGet("{gutendexId:int}/content")]
+    [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetContent(int gutendexId, CancellationToken ct)
+    {
+        var html = await _gutendex.GetBookContentAsync(gutendexId, ct);
+        if (html is null) return NotFound();
+        return Content(html, "text/html; charset=utf-8");
+    }
 }
