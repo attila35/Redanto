@@ -113,18 +113,22 @@ public class GutendexService : IGutendexService
         var client = _httpFactory.CreateClient("GutenbergContent");
         try
         {
-            // Gutenberg redirects HTTPS → HTTP; SocketsHttpHandler blocks protocol
-            // downgrades automatically, so we follow the redirect manually.
-            var response = await client.GetAsync(htmlUrl, HttpCompletionOption.ResponseHeadersRead, ct);
-
-            if ((int)response.StatusCode is >= 300 and < 400 && response.Headers.Location is { } loc)
+            // Gutenberg chains HTTPS→HTTP→HTTPS redirects. SocketsHttpHandler blocks
+            // protocol-downgrade redirects automatically, so we follow the chain manually.
+            var current = new Uri(htmlUrl);
+            for (var hop = 0; hop < 10; hop++)
             {
-                var finalUrl = loc.IsAbsoluteUri ? loc : new Uri(new Uri(htmlUrl), loc);
-                response = await client.GetAsync(finalUrl, HttpCompletionOption.ResponseHeadersRead, ct);
+                var response = await client.GetAsync(current, HttpCompletionOption.ResponseHeadersRead, ct);
+                if ((int)response.StatusCode is >= 300 and < 400 && response.Headers.Location is { } loc)
+                {
+                    current = loc.IsAbsoluteUri ? loc : new Uri(current, loc);
+                    continue;
+                }
+                response.EnsureSuccessStatusCode();
+                return await response.Content.ReadAsStringAsync(ct);
             }
-
-            response.EnsureSuccessStatusCode();
-            return await response.Content.ReadAsStringAsync(ct);
+            _logger.LogWarning("Too many redirects fetching book content from {Url}", htmlUrl);
+            return null;
         }
         catch (Exception ex)
         {
