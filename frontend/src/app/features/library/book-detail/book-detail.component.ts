@@ -45,7 +45,10 @@ import { LoadingSpinnerComponent } from '../../../shared/components/loading-spin
               }
 
               @if (readUrl()) {
-                <a [href]="readUrl()" target="_blank" rel="noopener" class="btn btn-accent">
+                <a [routerLink]="['/library', b.id, 'read']" class="btn btn-accent">
+                  Read here
+                </a>
+                <a [href]="readUrl()" target="_blank" rel="noopener" class="btn btn-ghost read-external">
                   Read online ↗
                 </a>
               }
@@ -139,6 +142,8 @@ import { LoadingSpinnerComponent } from '../../../shared/components/loading-spin
       gap: var(--space-2);
     }
     .save-btn, .actions a.btn { width: 100%; }
+    .read-external { font-size: 0.88rem; opacity: 0.75; }
+    .read-external:hover { opacity: 1; }
 
     .meta-col h1 {
       font-size: 2.5rem;

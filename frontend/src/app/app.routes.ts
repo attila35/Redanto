@@ -27,6 +27,12 @@ export const routes: Routes = [
     title: 'Book — Redanto'
   },
   {
+    path: 'library/:id/read',
+    loadComponent: () =>
+      import('./features/library/book-reader/book-reader.component').then(m => m.BookReaderComponent),
+    title: 'Read — Redanto'
+  },
+  {
     path: 'saved',
     canActivate: [authGuard],
     loadComponent: () =>
